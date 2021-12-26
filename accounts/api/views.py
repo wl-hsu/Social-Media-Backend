@@ -55,7 +55,7 @@ class AccountViewSet(viewsets.ViewSet):
     @action(methods=['POST'], detail=False)
     def logout(self, request):
         """
-        Log out the current user
+        logout current user
         """
         django_logout(request)
         return Response({"success": True})
@@ -63,7 +63,7 @@ class AccountViewSet(viewsets.ViewSet):
     @action(methods=['POST'], detail=False)
     def signup(self, request):
         """
-        Use username, email, password to register
+        use username, email, password to signup
         """
         # bad style
         # username = request.data.get('username')
@@ -87,12 +87,12 @@ class AccountViewSet(viewsets.ViewSet):
         return Response({
             'success': True,
             'user': UserSerializer(user).data,
-        })
+        }, status=201)
 
     @action(methods=['GET'], detail=False)
     def login_status(self, request):
         """
-        Check the user's current login status and specific information
+        check the user's current login status and specific information
         """
         data = {'has_logged_in': request.user.is_authenticated}
         if request.user.is_authenticated:
