@@ -30,12 +30,12 @@ fi
 # python -m pip install --upgrade pip
 # Change source perfect solution
 # Install pip required dependencies
-pip install --upgrade setuptools 
-pip install --ignore-installed wrapt 
+pip install --upgrade setuptools
+pip install --ignore-installed wrapt
 # Install the latest version of pip
-pip install -U pip 
+pip install -U pip
 # Install pip package according to the records in requirements.txt to ensure compatibility between all versions
-pip install -r requirements.txt 
+pip install -r requirements.txt
 
 
 # Set the password of the mysql root account to yourpassword
