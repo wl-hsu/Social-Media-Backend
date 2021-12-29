@@ -1,6 +1,5 @@
-from django.test import TestCase
+from testing.testcases import TestCase
 from rest_framework.test import APIClient
-from django.contrib.auth.models import User
 
 
 LOGIN_URL = '/api/accounts/login/'
@@ -19,11 +18,6 @@ class AccountApiTests(TestCase):
             email='admin@jiuzhang.com',
             password='correct password',
         )
-
-    def create_user(self, username, email, password):
-        # Cannot be written as User.objects.create()
-        # Because password needs to be encrypted, username and email need to be normalized
-        return User.objects.create_user(username, email, password)
 
     def test_login(self):
         # Each test function must start with test_ before it will be automatically called for testing
