@@ -30,6 +30,9 @@ class FriendshipViewSet(viewsets.GenericViewSet):
             status=status.HTTP_200_OK,
         )
 
+    # def list(self, request):
+    #     return Response({'message': 'this is friendships home page'})
+
     @action(methods=['GET'], detail=True, permission_classes=[AllowAny])
     def followings(self, request, pk):
         friendships = Friendship.objects.filter(from_user_id=pk).order_by('-created_at')
