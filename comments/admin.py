@@ -6,5 +6,3 @@ from comments.models import Comment
 class CommentAdmin(admin.ModelAdmin):
     list_display = ('tweet', 'user', 'content', 'created_at', 'updated_at')
     date_hierarchy = 'created_at'
-
-

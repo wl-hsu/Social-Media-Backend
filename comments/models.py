@@ -25,8 +25,3 @@ class Comment(models.Model):
             self.content,
             self.tweet_id,
         )
-
-
-from django.db import models
-
-# Create your models here.
