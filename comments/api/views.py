@@ -1,11 +1,13 @@
-from rest_framework import viewsets, status
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated, AllowAny
-from comments.models import Comment
+from comments.api.permissions import IsObjectOwner
 from comments.api.serializers import (
     CommentSerializer,
     CommentSerializerForCreate,
+    CommentSerializerForUpdate,
 )
+from comments.models import Comment
+from rest_framework import viewsets, status
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.response import Response
 
 
 class CommentViewSet(viewsets.GenericViewSet):
@@ -28,6 +30,8 @@ class CommentViewSet(viewsets.GenericViewSet):
         # Instead of AllowAny / IsAuthenticated, this is just a class name
         if self.action == 'create':
             return [IsAuthenticated()]
+        if self.action in ['destroy', 'update']:
+            return [IsAuthenticated(), IsObjectOwner()]
         return [AllowAny()]
 
     def create(self, request, *args, **kwargs):
@@ -52,3 +56,32 @@ class CommentViewSet(viewsets.GenericViewSet):
             CommentSerializer(comment).data,
             status=status.HTTP_201_CREATED,
         )
+
+    def update(self, request, *args, **kwargs):
+        # get_object is a function wrapped by DRF, it will raise 404 error when it is not found
+        # So there is no need to make additional judgments here
+        serializer = CommentSerializerForUpdate(
+            instance=self.get_object(),
+            data=request.data,
+        )
+        if not serializer.is_valid():
+            return Response({
+                'message': 'Please check input',
+                'errors': serializer.errors,
+            }, status=status.HTTP_400_BAD_REQUEST)
+        # The save method will trigger the update method in the serializer,
+        # click into the specific implementation of save to see
+        # save determines whether to trigger create or update according to whether the instance parameter is passed
+        comment = serializer.save()
+        return Response(
+            CommentSerializer(comment).data,
+            status=status.HTTP_200_OK,
+        )
+
+    def destroy(self, request, *args, **kwargs):
+        comment = self.get_object()
+        comment.delete()
+        # The default destroy in DRF returns status code = 204 no content
+        # Here return success=True is more intuitive for the front end to make judgments,
+        # so return 200 is more appropriate
+        return Response({'success': True}, status=status.HTTP_200_OK)
