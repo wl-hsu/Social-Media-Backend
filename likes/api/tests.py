@@ -1,6 +1,6 @@
 from testing.testcases import TestCase
 
-
+LIKE_CANCEL_URL = '/api/likes/cancel/'
 LIKE_BASE_URL = '/api/likes/'
 
 
