@@ -1,9 +1,14 @@
 from rest_framework import viewsets
+from newsfeeds.services import NewsFeedService
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
-from tweets.api.serializers import TweetSerializer, TweetCreateSerializer
+from tweets.api.serializers import (
+    TweetCreateSerializer,
+    TweetSerializer,
+    TweetSerializerWithComments,
+)
 from tweets.models import Tweet
-from newsfeeds.services import NewsFeedService
+from utils.decorators import required_params
 
 
 class TweetViewSet(viewsets.GenericViewSet,
@@ -16,17 +21,18 @@ class TweetViewSet(viewsets.GenericViewSet,
     serializer_class = TweetCreateSerializer
 
     def get_permissions(self):
-        if self.action == 'list':
+        if self.action in ['list', 'retrieve']:
             return [AllowAny()]
         return [IsAuthenticated()]
 
-    def list(self, request, *args, **kwargs):
-        """
-        Overload the list method, do not list all tweets, you must specify user_id as the filter condition
-        """
-        if 'user_id' not in request.query_params:
-            return Response('missing user_id', status=400)
+    def retrieve(self, request, *args, **kwargs):
+        # <HOMEWORK 1> Use a query parameter with_all_comments to decide whether you need to bring all comments
+        # <HOMEWORK 2> Use a query parameter with_preview_comments to decide whether to bring the first three comments
+        tweet = self.get_object()
+        return Response(TweetSerializerWithComments(tweet).data)
 
+    @required_params(params=['user_id'])
+    def list(self, request, *args, **kwargs):
         # This query will be translated into
         # select * from twitter_tweets
         # where user_id = xxx
