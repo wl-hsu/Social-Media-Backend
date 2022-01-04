@@ -10,14 +10,18 @@ class NewsFeedViewSet(viewsets.GenericViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        # 自定义 queryset，因为 newsfeed 的查看是有权限的
-        # 只能看 user=当前登录用户的 newsfeed
-        # 也可以是 self.request.user.newsfeed_set.all()
-        # 但是一般最好还是按照 NewsFeed.objects.filter 的方式写，更清晰直观
+        # Custom queryset, because newsfeed viewing is authorized
+        # can only see the newsfeed of user=currently logged in user
+        # It can also be self.request.user.newsfeed_set.all()
+        # But generally it is better to write in the way of NewsFeed.objects.filter, which is more clear and intuitive
         return NewsFeed.objects.filter(user=self.request.user)
 
     def list(self, request):
-        serializer = NewsFeedSerializer(self.get_queryset(), many=True)
+        serializer = NewsFeedSerializer(
+            self.get_queryset(),
+            context={'request': request},
+            many=True,
+        )
         return Response({
             'newsfeeds': serializer.data,
         }, status=status.HTTP_200_OK)

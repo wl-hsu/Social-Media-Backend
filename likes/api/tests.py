@@ -1,7 +1,12 @@
 from testing.testcases import TestCase
+from rest_framework.test import APIClient
 
 LIKE_CANCEL_URL = '/api/likes/cancel/'
 LIKE_BASE_URL = '/api/likes/'
+COMMENT_LIST_API = '/api/comments/'
+TWEET_LIST_API = '/api/tweets/'
+TWEET_DETAIL_API = '/api/tweets/{}/'
+NEWSFEED_LIST_API = '/api/newsfeeds/'
 
 
 class LikeApiTests(TestCase):
@@ -73,3 +78,69 @@ class LikeApiTests(TestCase):
         self.assertEqual(comment.like_set.count(), 1)
         self.wl_hsu_client.post(LIKE_BASE_URL, data)
         self.assertEqual(comment.like_set.count(), 2)
+
+    def test_likes_in_comments_api(self):
+        tweet = self.create_tweet(self.wl)
+        comment = self.create_comment(self.wl, tweet)
+
+        # test anonymous
+        anonymous_client = APIClient()
+        response = anonymous_client.get(COMMENT_LIST_API, {'tweet_id': tweet.id})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['comments'][0]['has_liked'], False)
+        self.assertEqual(response.data['comments'][0]['likes_count'], 0)
+
+        # test comments list api
+        response = self.wl_hsu_client.get(COMMENT_LIST_API, {'tweet_id': tweet.id})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['comments'][0]['has_liked'], False)
+        self.assertEqual(response.data['comments'][0]['likes_count'], 0)
+        self.create_like(self.wl_hsu, comment)
+        response = self.wl_hsu_client.get(COMMENT_LIST_API, {'tweet_id': tweet.id})
+        self.assertEqual(response.data['comments'][0]['has_liked'], True)
+        self.assertEqual(response.data['comments'][0]['likes_count'], 1)
+
+        # test tweet detail api
+        self.create_like(self.wl, comment)
+        url = TWEET_DETAIL_API.format(tweet.id)
+        response = self.wl_hsu_client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['comments'][0]['has_liked'], True)
+        self.assertEqual(response.data['comments'][0]['likes_count'], 2)
+
+    def test_likes_in_tweets_api(self):
+        tweet = self.create_tweet(self.wl)
+
+        # test tweet detail api
+        url = TWEET_DETAIL_API.format(tweet.id)
+        response = self.wl_hsu_client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['has_liked'], False)
+        self.assertEqual(response.data['likes_count'], 0)
+        self.create_like(self.wl_hsu, tweet)
+        response = self.wl_hsu_client.get(url)
+        self.assertEqual(response.data['has_liked'], True)
+        self.assertEqual(response.data['likes_count'], 1)
+
+        # test tweets list api
+        response = self.wl_hsu_client.get(TWEET_LIST_API, {'user_id': self.wl.id})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['tweets'][0]['has_liked'], True)
+        self.assertEqual(response.data['tweets'][0]['likes_count'], 1)
+
+        # test newsfeeds list api
+        self.create_like(self.wl, tweet)
+        self.create_newsfeed(self.wl_hsu, tweet)
+        response = self.wl_hsu_client.get(NEWSFEED_LIST_API)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['newsfeeds'][0]['tweet']['has_liked'], True)
+        self.assertEqual(response.data['newsfeeds'][0]['tweet']['likes_count'], 2)
+
+        # test likes details
+        url = TWEET_DETAIL_API.format(tweet.id)
+        response = self.wl_hsu_client.get(url)
+        self.assertEqual(len(response.data['likes']), 2)
+        self.assertEqual(response.data['likes'][0]['user']['id'], self.wl.id)
+        self.assertEqual(response.data['likes'][1]['user']['id'], self.wl_hsu.id)
+
+
