@@ -9,6 +9,7 @@ from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from utils.decorators import required_params
+from inbox.services import NotificationService
 
 
 class CommentViewSet(viewsets.GenericViewSet):
@@ -68,6 +69,7 @@ class CommentViewSet(viewsets.GenericViewSet):
         # The save method will trigger the create method in the serializer,
         # click into the specific implementation of save to see
         comment = serializer.save()
+        NotificationService.send_comment_notification(comment)
         return Response(
             CommentSerializer(comment, context={'request': request}).data,
             status=status.HTTP_201_CREATED,
