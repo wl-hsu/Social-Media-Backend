@@ -19,17 +19,17 @@ class UserProfile(models.Model):
         return '{} {}'.format(self.user, self.nickname)
 
 
-# 定义一个 profile 的 property 方法，植入到 User 这个 model 里
-# 这样当我们通过 user 的一个实例化对象访问 profile 的时候，即 user_instance.profile
-# 就会在 UserProfile 中进行 get_or_create 来获得对应的 profile 的 object
-# 这种写法实际上是一个利用 Python 的灵活性进行 hack 的方法，这样会方便我们通过 user 快速
-# 访问到对应的 profile 信息。
+# Define the property method of a profile and embed it in the User model
+# So when we access the profile through an instantiated object of user, that is,
+# user_instance.profile will get_or_create in UserProfile to obtain the corresponding profile object
+# This writing method is actually a method of hacking using the flexibility of Python,
+# which will facilitate us to quickly access the corresponding profile information through the user.
 def get_profile(user):
     if hasattr(user, '_cached_user_profile'):
         return getattr(user, '_cached_user_profile')
     profile, _ = UserProfile.objects.get_or_create(user=user)
-    # 使用 user 对象的属性进行缓存(cache)，避免多次调用同一个 user 的 profile 时
-    # 重复的对数据库进行查询
+    # Use the attributes of the user object to cache (cache) to avoid repeated queries to the database
+    # when the profile of the same user is called multiple times
     setattr(user, '_cached_user_profile', profile)
     return profile
 
