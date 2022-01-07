@@ -28,7 +28,7 @@ class TweetTests(TestCase):
         self.assertEqual(self.tweet.like_set.count(), 2)
 
     def test_create_photo(self):
-        # 测试可以成功创建 photo 的数据对象
+        # The test can successfully create the data object of photo
         photo = TweetPhoto.objects.create(
             tweet=self.tweet,
             user=self.wl,

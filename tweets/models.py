@@ -38,28 +38,31 @@ class Tweet(models.Model):
 
 
 class TweetPhoto(models.Model):
-    # 图片在哪个 Tweet 下面
+    # Under which Tweet the picture is
     tweet = models.ForeignKey(Tweet, on_delete=models.SET_NULL, null=True)
 
-    # 谁上传了这张图片，这个信息虽然可以从 tweet 中获取到，但是重复的记录在 Image 里可以在
-    # 使用上带来很多遍历，比如某个人经常上传一些不合法的照片，那么这个人新上传的照片可以被标记
-    # 为重点审查对象。或者我们需要封禁某个用户上传的所有照片的时候，就可以通过这个 model 快速
-    # 进行筛选
+    # Who uploaded this picture, although this information can be obtained from the tweet,
+    # but repeated records in the Image can bring a lot of traversal in use, for example,
+    # a person often uploads some illegal photos,
+    # then this person uploads new The photos can be marked as key review objects.
+    # Or when we need to block all photos uploaded by a certain user, we can quickly filter through this model
     user = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
 
-    # 图片文件
+    # Picture file
     file = models.FileField()
     order = models.IntegerField(default=0)
 
-    # 图片状态，用于审核等情况
+    # Picture status, used for review, etc.
     status = models.IntegerField(
         default=TweetPhotoStatus.PENDING,
         choices=TWEET_PHOTO_STATUS_CHOICES,
     )
 
-    # 软删除(soft delete)标记，当一个照片被删除的时候，首先会被标记为已经被删除，在一定时间之后
-    # 才会被真正的删除。这样做的目的是，如果在 tweet 被删除的时候马上执行真删除的通常会花费一定的
-    # 时间，影响效率。可以用异步任务在后台慢慢做真删除。
+    # Soft delete mark. When a photo is deleted, it will first be marked as deleted,
+    # and it will be deleted after a certain period of time.
+    # The purpose of this is that if a true deletion is executed immediately when a tweet is deleted,
+    # it usually takes a certain amount of time, which affects efficiency.
+    # We can use asynchronous tasks to slowly do true deletions in the background.
     has_deleted = models.BooleanField(default=False)
     deleted_at = models.DateTimeField(null=True)
     created_at = models.DateTimeField(auto_now_add=True)
