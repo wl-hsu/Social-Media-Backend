@@ -20,7 +20,7 @@ class FriendshipViewSet(viewsets.GenericViewSet):
     # queryset.filter(pk=1) Query whether this object is
     serializer_class = FriendshipSerializerForCreate
     queryset = User.objects.all()
-    # 一般来说，不同的 views 所需要的 pagination 规则肯定是不同的，因此一般都需要自定义
+    # Generally speaking, the pagination rules required by different views must be different, so they generally need to be customized
     pagination_class = FriendshipPagination
 
     @action(methods=['GET'], detail=True, permission_classes=[AllowAny])

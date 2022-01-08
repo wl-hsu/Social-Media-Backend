@@ -3,13 +3,13 @@ from rest_framework.response import Response
 
 
 class FriendshipPagination(PageNumberPagination):
-    # 默认的 page size，也就是 page 没有在 url 参数里的时候
+    # The default page size, that is, when the page is not in the url parameter
     page_size = 20
-    # 默认的 page_size_query_param 是 None 表示不允许客户端指定每一页的大小
-    # 如果加上这个配置，就表示客户端可以通过 size=10 来指定一个特定的大小用于不同的场景
-    # 比如手机端和web端访问同一个API但是需要的 size 大小是不同的。
+    # The default page_size_query_param is None which means the client is not allowed to specify the size of each page
+    # If this configuration is added, it means that the client can specify a specific size for different scenarios through size=10
+    # For example, the mobile terminal and the web terminal access the same API but the required size is different.
     page_size_query_param = 'size'
-    # 允许客户端指定的最大 page_size 是多少
+    # what is the maximum page_size that the client is allowed to specify
     max_page_size = 20
 
     def get_paginated_response(self, data):
