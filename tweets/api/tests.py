@@ -1,7 +1,6 @@
+from django.core.files.uploadedfile import SimpleUploadedFile
 from rest_framework.test import APIClient
 from testing.testcases import TestCase
-from tweets.models import Tweet
-from django.core.files.uploadedfile import SimpleUploadedFile
 from tweets.models import Tweet, TweetPhoto
 from utils.paginations import EndlessPagination
 
@@ -156,8 +155,8 @@ class TweetApiTests(TestCase):
         self.assertEqual(len(response.data['comments']), 2)
 
         # profile = self.user1.profile
-        # self.assertEqual(response.data['user']['nickname'], profile.nickname)
-        # self.assertEqual(response.data['user']['avatar_url'], None)
+        # self.assertEqual(response.data['user1']['nickname'], profile.nickname)
+        # self.assertEqual(response.data['user1']['avatar_url'], None)
 
     def test_pagination(self):
         page_size = EndlessPagination.page_size
@@ -205,4 +204,5 @@ class TweetApiTests(TestCase):
         self.assertEqual(response.data['has_next_page'], False)
         self.assertEqual(len(response.data['results']), 1)
         self.assertEqual(response.data['results'][0]['id'], new_tweet.id)
+
 
