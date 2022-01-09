@@ -28,8 +28,6 @@ class TweetViewSet(viewsets.GenericViewSet,
         return [IsAuthenticated()]
 
     def retrieve(self, request, *args, **kwargs):
-        # <HOMEWORK 1> Use a query parameter with_all_comments to decide whether you need to bring all comments
-        # <HOMEWORK 2> Use a query parameter with_preview_comments to decide whether to bring the first three comments
         serializer = TweetSerializerForDetail(
             self.get_object(),
             context={'request': request},
