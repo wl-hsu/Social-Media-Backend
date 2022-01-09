@@ -8,6 +8,7 @@ from tweets.models import TweetPhoto
 
 class TweetTests(TestCase):
     def setUp(self):
+        self.clear_cache()
         self.wl = self.create_user('wl')
         self.tweet = self.create_tweet(self.wl, content='HOW DO YOU TURN THIS ON')
 
