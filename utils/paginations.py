@@ -1,3 +1,4 @@
+from dateutil import parser
 from rest_framework.pagination import BasePagination
 from rest_framework.response import Response
 
@@ -13,6 +14,9 @@ class EndlessPagination(BasePagination):
         pass
 
     def paginate_queryset(self, queryset, request, view=None):
+        if type(queryset) == list:
+            return self.paginate_ordered_list(queryset, request)
+
         if 'created_at__gt' in request.query_params:
             # created_at__gt is used to load the latest content when pulling down to refresh
             # For the sake of simplicity, pull-down refresh does not do page turning mechanism,
@@ -42,3 +46,28 @@ class EndlessPagination(BasePagination):
             'has_next_page': self.has_next_page,
             'results': data,
         })
+
+    def paginate_ordered_list(self, reverse_ordered_list, request):
+        if 'created_at__gt' in request.query_params:
+            created_at__gt = parser.isoparse(request.query_params['created_at__gt'])
+            objects = []
+            for obj in reverse_ordered_list:
+                if obj.created_at > created_at__gt:
+                    objects.append(obj)
+                else:
+                    break
+            self.has_next_page = False
+            return objects
+
+        index = 0
+        if 'created_at__lt' in request.query_params:
+            created_at__lt = parser.isoparse(request.query_params['created_at__lt'])
+            for index, obj in enumerate(reverse_ordered_list):
+                if obj.created_at < created_at__lt:
+                    break
+            else:
+                # No objects are found that satisfy the condition, return an empty array
+                # Note that this else corresponds to for, see python's for else syntax
+                reverse_ordered_list = []
+        self.has_next_page = len(reverse_ordered_list) > index + self.page_size
+        return reverse_ordered_list[index: index + self.page_size]
