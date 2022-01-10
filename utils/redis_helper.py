@@ -10,7 +10,10 @@ class RedisHelper:
         conn = RedisClient.get_connection()
 
         serialized_list = []
-        for obj in objects:
+        # At most, only cache REDIS_LIST_LENGTH_LIMIT objects with multiple objects exceeding this limit will be read from the database.
+        # Generally, this limit will be relatively large, such as 1000, so the number of users who turn the page to 1000 will be less,
+        # and reading from the database is not a big problem
+        for obj in objects[:settings.REDIS_LIST_LENGTH_LIMIT]:
             serialized_data = DjangoModelSerializer.serialize(obj)
             serialized_list.append(serialized_data)
 
@@ -46,3 +49,4 @@ class RedisHelper:
             return
         serialized_data = DjangoModelSerializer.serialize(obj)
         conn.lpush(key, serialized_data)
+        conn.ltrim(key, 0, settings.REDIS_LIST_LENGTH_LIMIT - 1)
