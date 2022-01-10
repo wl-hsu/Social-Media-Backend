@@ -20,6 +20,12 @@ class Tweet(models.Model):
     content = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    # The newly added field must be set to null=True, otherwise default = 0 will traverse the entire form to set it,
+    # which will cause the Migration process to be very slow, thus locking the entire form,
+    # so that normal users cannot create new tweets
+    likes_count = models.IntegerField(default=0, null=True)
+    comments_count = models.IntegerField(default=0, null=True)
+
     class Meta:
         index_together = (('user', 'created_at'),)
         ordering = ('user', '-created_at')
@@ -43,7 +49,6 @@ class Tweet(models.Model):
     @property
     def cached_user(self):
         return MemcachedHelper.get_object_through_cache(User, self.user_id)
-
 
 
 class TweetPhoto(models.Model):
@@ -76,6 +81,8 @@ class TweetPhoto(models.Model):
     deleted_at = models.DateTimeField(null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+
+
     class Meta:
         index_together = (
             ('user', 'created_at'),
@@ -86,6 +93,7 @@ class TweetPhoto(models.Model):
 
     def __str__(self):
         return f'{self.tweet_id}: {self.file}'
+
 
 post_save.connect(invalidate_object_cache, sender=Tweet)
 pre_delete.connect(invalidate_object_cache, sender=Tweet)
