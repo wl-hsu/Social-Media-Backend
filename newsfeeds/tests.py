@@ -2,7 +2,8 @@ from newsfeeds.services import NewsFeedService
 from testing.testcases import TestCase
 from twitter.cache import USER_NEWSFEEDS_PATTERN
 from utils.redis_client import RedisClient
-
+from newsfeeds.models import NewsFeed
+from newsfeeds.tasks import fanout_newsfeeds_main_task
 
 class NewsFeedServiceTests(TestCase):
 
@@ -47,3 +48,40 @@ class NewsFeedServiceTests(TestCase):
 
         feeds = NewsFeedService.get_cached_newsfeeds(self.wl.id)
         self.assertEqual([f.id for f in feeds], [feed2.id, feed1.id])
+
+    class NewsFeedTaskTests(TestCase):
+
+        def setUp(self):
+            self.clear_cache()
+            self.wl = self.create_user('wl')
+            self.wl_hsu = self.create_user('wl_hsu')
+
+        def test_fanout_main_task(self):
+            tweet = self.create_tweet(self.wl, 'tweet 1')
+            self.create_friendship(self.wl_hsu, self.wl)
+            msg = fanout_newsfeeds_main_task(tweet.id, self.wl.id)
+            self.assertEqual(msg, '1 newsfeeds going to fanout, 1 batches created.')
+            self.assertEqual(1 + 1, NewsFeed.objects.count())
+            cached_list = NewsFeedService.get_cached_newsfeeds(self.wl.id)
+            self.assertEqual(len(cached_list), 1)
+
+            for i in range(2):
+                user = self.create_user('user{}'.format(i))
+                self.create_friendship(user, self.wl)
+            tweet = self.create_tweet(self.wl, 'tweet 2')
+            msg = fanout_newsfeeds_main_task(tweet.id, self.wl.id)
+            self.assertEqual(msg, '3 newsfeeds going to fanout, 1 batches created.')
+            self.assertEqual(4 + 2, NewsFeed.objects.count())
+            cached_list = NewsFeedService.get_cached_newsfeeds(self.wl.id)
+            self.assertEqual(len(cached_list), 2)
+
+            user = self.create_user('another user')
+            self.create_friendship(user, self.wl)
+            tweet = self.create_tweet(self.wl, 'tweet 3')
+            msg = fanout_newsfeeds_main_task(tweet.id, self.wl.id)
+            self.assertEqual(msg, '4 newsfeeds going to fanout, 2 batches created.')
+            self.assertEqual(8 + 3, NewsFeed.objects.count())
+            cached_list = NewsFeedService.get_cached_newsfeeds(self.wl.id)
+            self.assertEqual(len(cached_list), 3)
+            cached_list = NewsFeedService.get_cached_newsfeeds(self.wl_hsu.id)
+            self.assertEqual(len(cached_list), 3)
