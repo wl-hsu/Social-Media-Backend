@@ -10,6 +10,8 @@ from rest_framework.response import Response
 from utils.decorators import required_params
 from inbox.services import NotificationService
 from utils.permissions import IsObjectOwner
+from django.utils.decorators import method_decorator
+from ratelimit.decorators import ratelimit
 
 
 class CommentViewSet(viewsets.GenericViewSet):
@@ -38,6 +40,7 @@ class CommentViewSet(viewsets.GenericViewSet):
         return [AllowAny()]
 
     @required_params(params=['tweet_id'])
+    @method_decorator(ratelimit(key='user', rate='3/s', method='GET', block=True))
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
         comments = self.filter_queryset(queryset).prefetch_related('user').order_by('created_at')
@@ -51,6 +54,7 @@ class CommentViewSet(viewsets.GenericViewSet):
             status=status.HTTP_200_OK,
         )
 
+    @method_decorator(ratelimit(key='user', rate='3/s', method='POST', block=True))
     def create(self, request, *args, **kwargs):
         data = {
             'user_id': request.user.id,
@@ -75,6 +79,7 @@ class CommentViewSet(viewsets.GenericViewSet):
             status=status.HTTP_201_CREATED,
         )
 
+    @method_decorator(ratelimit(key='user', rate='3/s', method='POST', block=True))
     def update(self, request, *args, **kwargs):
         # get_object is a function wrapped by DRF, it will raise 404 error when it is not found
         # So there is no need to make additional judgments here
@@ -96,6 +101,7 @@ class CommentViewSet(viewsets.GenericViewSet):
             status=status.HTTP_200_OK,
         )
 
+    @method_decorator(ratelimit(key='user', rate='5/s', method='POST', block=True))
     def destroy(self, request, *args, **kwargs):
         comment = self.get_object()
         comment.delete()
