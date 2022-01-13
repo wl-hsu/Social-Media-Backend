@@ -11,6 +11,8 @@ from tweets.models import Tweet
 from tweets.services import TweetService
 from utils.decorators import required_params
 from utils.paginations import EndlessPagination
+from django.utils.decorators import method_decorator
+from ratelimit.decorators import ratelimit
 
 
 class TweetViewSet(viewsets.GenericViewSet):
@@ -26,6 +28,7 @@ class TweetViewSet(viewsets.GenericViewSet):
             return [AllowAny()]
         return [IsAuthenticated()]
 
+    @method_decorator(ratelimit(key='user_or_ip', rate='5/s', method='GET', block=True))
     def retrieve(self, request, *args, **kwargs):
         serializer = TweetSerializerForDetail(
             self.get_object(),
@@ -56,6 +59,8 @@ class TweetViewSet(viewsets.GenericViewSet):
         # Instead of using the format of list (by convention)
         return self.get_paginated_response(serializer.data)
 
+    @method_decorator(ratelimit(key='user', rate='1/s', method='POST', block=True))
+    @method_decorator(ratelimit(key='user', rate='5/m', method='POST', block=True))
     def create(self, request, *args, **kwargs):
         """
         Overload the create method, because you need to use the currently logged-in user as tweet.user by default
