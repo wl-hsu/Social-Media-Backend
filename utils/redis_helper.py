@@ -13,7 +13,7 @@ class RedisHelper:
         # At most, only cache REDIS_LIST_LENGTH_LIMIT objects with multiple objects exceeding this limit will be read from the database.
         # Generally, this limit will be relatively large, such as 1000, so the number of users who turn the page to 1000 will be less,
         # and reading from the database is not a big problem
-        for obj in objects[:settings.REDIS_LIST_LENGTH_LIMIT]:
+        for obj in objects:
             serialized_data = DjangoModelSerializer.serialize(obj)
             serialized_list.append(serialized_data)
 
@@ -23,6 +23,7 @@ class RedisHelper:
 
     @classmethod
     def load_objects(cls, key, queryset):
+        queryset = queryset[:settings.REDIS_LIST_LENGTH_LIMIT]
         conn = RedisClient.get_connection()
 
         # If it exists in the cache, take it out directly and return
@@ -42,6 +43,7 @@ class RedisHelper:
 
     @classmethod
     def push_object(cls, key, obj, queryset):
+        queryset = queryset[:settings.REDIS_LIST_LENGTH_LIMIT]
         conn = RedisClient.get_connection()
         if not conn.exists(key):
             # If the key does not exist, load directly from the database without adding a single push to the cache
