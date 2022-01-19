@@ -6,7 +6,7 @@ class CommentModelTests(TestCase):
 
 
     def setUp(self):
-        self.clear_cache()
+        super(CommentModelTests, self).setUp()
         self.wl = self.create_user('wl')
         self.tweet = self.create_tweet(self.wl)
         self.comment = self.create_comment(self.wl, self.tweet)

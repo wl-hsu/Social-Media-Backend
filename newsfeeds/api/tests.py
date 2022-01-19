@@ -15,7 +15,7 @@ FOLLOW_URL = '/api/friendships/{}/follow/'
 class NewsFeedApiTests(TestCase):
 
     def setUp(self):
-        self.clear_cache()
+        super(NewsFeedApiTests, self).setUp()
         self.wl = self.create_user('wl')
         self.wl_client = APIClient()
         self.wl_client.force_authenticate(self.wl)
@@ -27,10 +27,10 @@ class NewsFeedApiTests(TestCase):
         # create followings and followers for wl_hsu
         for i in range(2):
             follower = self.create_user('wl_hsu_follower{}'.format(i))
-            Friendship.objects.create(from_user=follower, to_user=self.wl_hsu)
+            self.create_friendship(from_user=follower, to_user=self.wl_hsu)
         for i in range(3):
             following = self.create_user('wl_hsu_following{}'.format(i))
-            Friendship.objects.create(from_user=self.wl_hsu, to_user=following)
+            self.create_friendship(from_user=self.wl_hsu, to_user=following)
 
     def test_list(self):
         # Login required

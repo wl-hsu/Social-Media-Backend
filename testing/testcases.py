@@ -8,8 +8,8 @@ from likes.models import Like
 from newsfeeds.models import NewsFeed
 from django.core.cache import caches
 from utils.redis_client import RedisClient
-from friendships.models import Friendship
 from django_hbase.models import HBaseModel
+from friendships.services import FriendshipService
 
 
 class TestCase(DjangoTestCase):
@@ -57,7 +57,7 @@ class TestCase(DjangoTestCase):
         return Tweet.objects.create(user=user, content=content)
 
     def create_friendship(self, from_user, to_user):
-        return Friendship.objects.create(from_user=from_user, to_user=to_user)
+        return FriendshipService.follow(from_user.id, to_user.id)
 
     def create_newsfeed(self, user, tweet):
         return NewsFeed.objects.create(user=user, tweet=tweet)

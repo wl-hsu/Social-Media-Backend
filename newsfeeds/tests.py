@@ -5,10 +5,11 @@ from utils.redis_client import RedisClient
 from newsfeeds.models import NewsFeed
 from newsfeeds.tasks import fanout_newsfeeds_main_task
 
+
 class NewsFeedServiceTests(TestCase):
 
     def setUp(self):
-        self.clear_cache()
+        super(NewsFeedServiceTests, self).setUp()
         self.wl = self.create_user('wl')
         self.wl_hsu = self.create_user('wl_hsu')
 
@@ -49,10 +50,10 @@ class NewsFeedServiceTests(TestCase):
         feeds = NewsFeedService.get_cached_newsfeeds(self.wl.id)
         self.assertEqual([f.id for f in feeds], [feed2.id, feed1.id])
 
-    class NewsFeedTaskTests(TestCase):
+class NewsFeedTaskTests(TestCase):
 
         def setUp(self):
-            self.clear_cache()
+            super(NewsFeedTaskTests, self).setUp()
             self.wl = self.create_user('wl')
             self.wl_hsu = self.create_user('wl_hsu')
 
