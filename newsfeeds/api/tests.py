@@ -1,4 +1,3 @@
-from friendships.models import Friendship
 from rest_framework.test import APIClient
 from testing.testcases import TestCase
 from newsfeeds.models import NewsFeed
