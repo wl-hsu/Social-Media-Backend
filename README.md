@@ -1,11 +1,13 @@
-# Social Media Backend System(Twitter)
+# Social-Media-Backend(twitter)
+A twitter-like backend project implement by Django.
 
-Tech Stack: Python, Django, MySQL, HBase, Redis, Memcached, Amazon S3.
+## getting start
+### Install dependies
 
-Used Redis and Memcached to reduce db queries for tables which has lot reads and less writes.
+### run frontend
 
-Used Key-value store HBase to split db queries for tables which has less reads and lot writes.
+### run mock backend service
 
-Used denormalization to store the number of comments & likes in order to reduce db queries.
+### How to access
 
-Used Message Queue to deliver asynchronized tasks to reduce response time.
+
