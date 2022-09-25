@@ -2,8 +2,8 @@
 A twitter-like backend project implement by Django.
 
 ## Getting start
-### Deploy in Docker
 
+### Deploy in Docker
 install Docker Desktop
 
 ### configuration files
