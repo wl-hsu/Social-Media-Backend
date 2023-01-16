@@ -1,0 +1,99 @@
+version: "3"
+services:
+  twitter:
+    container_name: twitter
+    restart: always
+    depends_on:
+      - mysql
+      - redis
+      - memcached
+      - hbase
+    volumes:
+      - .:/other-code
+    links:
+      - mysql
+      - redis
+      - memcached
+      - hbase
+    tty: true
+    image: twitter/back-end:latest
+    ports:
+      - "8000:8000"
+    command:
+      - /bin/bash
+      - -c
+      - |
+        sleep 60
+        echo sleep over
+        python manage.py makemigrations
+        python manage.py migrate
+        python manage.py runserver 0.0.0.0:8000
+
+  mysql:
+    container_name: mysql
+    platform: linux/amd64
+    volumes:
+      - ./mysql:/var/lib/mysql:rw # 挂载数据库数据
+      - ./compose/mysql/conf/my.cnf:/etc/mysql/my.cnf # 挂载配置文件
+      - ./compose/mysql/init:/docker-entrypoint-initdb.d/ # 挂载数据库初始化脚本
+    image: mysql:8.0 #
+    command: --default-authentication-plugin=mysql_native_password --mysqlx=0
+    security_opt:
+      - seccomp:unconfined
+    expose:
+      - 3306
+    ports:
+      - "3307:3306" # 冒号左边的宿主机的端口，右边的是容器的端口
+    restart: always # 如果容器停止，始终重新启动容器。
+    environment:
+      - MYSQL_ROOT_PASSWORD=yourpassword
+      - MYSQL_DATABASE=twitter
+
+  redis:
+    container_name: redis
+    image: redis:latest
+    expose:
+      - 6379
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./redis:/data
+      - ./compose/redis/conf/redis.conf:/etc/redis/redis.conf
+    restart: always
+    command: redis-server /etc/redis/redis.conf
+
+  memcached:
+    container_name: memcached
+    image: memcached:latest
+    expose:
+      - 11211
+    restart: always
+    ports:
+      - "11211:11211"
+    entrypoint:
+      - memcached
+      - -m 64
+
+  hbase:
+    container_name: hbase
+    image: harisekhon/hbase:latest
+    logging:
+      driver: none
+    external_links:
+      - hadoop
+      - zookeeper
+    ports:
+      - 16000:16000
+      - 16010:16010
+      - 16030:16030
+      - 16201:16201
+      - 16301:16301
+      - 9090:9090
+      - 9095:9095
+      - 8080:8080
+      - 8085:8085
+      - 2181:2181
+    volumes:
+      - ./hbase:/hbase-data
+      - "/etc/timezone:/etc/timezone:ro"
+      - "/etc/localtime:/etc/localtime:ro"  
