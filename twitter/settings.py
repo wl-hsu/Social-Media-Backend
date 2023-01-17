@@ -27,7 +27,7 @@ SECRET_KEY = '+)(x1e%@*6)lc#x3zzdw1@9(6h_4c-53(o@39%8m3&%3rk&$r='
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', '192.168.33.10', 'localhost']
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -104,7 +104,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'twitter',
-        'HOST': '0.0.0.0',
+        'HOST': 'mysql',
         'PORT': '3306',
         'USER': 'root',
         'PASSWORD': 'yourpassword',
@@ -112,7 +112,7 @@ DATABASES = {
 }
 
 # HBase Database
-HBASE_HOST = '127.0.0.1'
+HBASE_HOST = 'hbase'
 
 
 
@@ -172,24 +172,24 @@ AWS_S3_REGION_NAME = 'us-east-1'
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-        'LOCATION': '127.0.0.1:11211',
+        'LOCATION': 'memcached:11211',
         'TIMEOUT': 86400,
     },
     'testing': {
         'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-        'LOCATION': '127.0.0.1:11211',
+        'LOCATION': 'memcached:11211',
         'TIMEOUT': 86400,
         'KEY_PREFIX': 'testing',
     },
     'ratelimit': {
         'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-        'LOCATION': '127.0.0.1:11211',
+        'LOCATION': 'memcached:11211',
         'TIMEOUT': 86400 * 7,
         'KEY_PREFIX': 'rl',
     },
 }
 
-REDIS_HOST = '127.0.0.1'
+REDIS_HOST = 'redis'
 REDIS_PORT = 6379
 REDIS_DB = 0 if TESTING else 1
 REDIS_KEY_EXPIRE_TIME = 7 * 86400  # in seconds
