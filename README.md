@@ -15,11 +15,11 @@ Introduce Message Queue to deliver asynchronous tasks to minimize response time.
 
 
 ## Getting start
-deploy project on docker
+Deploy project on docker
 
 ### Create a file to save your S3 access key
 
-add local_settings.py in Social-Media-Backend/twitter
+Add local_settings.py in Social-Media-Backend/twitter
 ```
 AWS_ACCESS_KEY_ID = 'AWS_ACCESS_KEY_ID'
 AWS_SECRET_ACCESS_KEY = 'AWS_SECRET_ACCESS_KEY'
@@ -31,7 +31,7 @@ AWS_SECRET_ACCESS_KEY = 'AWS_SECRET_ACCESS_KEY'
 docker build -t twitter/back-end .
 ```
 
-### run docker compose
+### Run docker compose
 
 ```
 docker-compose up -d && docker-compose logs --tail=100 -f
@@ -53,12 +53,12 @@ python manage.py createsuperuser
 
 Access to api list
 ```
-http://0.0.0.0:8000/
+localhost:8000
 ```
 
 Access to admin page
 ```
-http://0.0.0.0:8000/admin
+localhost:8000/admin
 ```
 
 
