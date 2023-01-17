@@ -1,16 +1,21 @@
 # Social-Media-Backend
 A Social Media Backend (Twitter/FB) REST API project implement by Django.
 
-	Designed and developed of all back-end features, including User Profile Service, Login Authentication Service, Feeds Management (post, delete, revise, etc), Interaction functionality, etc
-	Applied push model to fanout news feeds.
-	Used Redis and Memcached to reduce DB query for tables with many reads and fewer writes.
-	Adopt HBase to split DB queries for tables with fewer reads and lot writes.
-	Optimized the number of comments and likes storage by employing denormalization to reduce DB queries.
-	Introduce Message Queue to deliver asynchronous tasks to minimize response time.
+Designed and developed of all back-end features, including User Profile Service, Login Authentication Service, Feeds Management (post, delete, revise, etc), Interaction functionality, etc.
+
+Applied push model to fanout news feeds.
+
+Used Redis and Memcached to reduce DB query for tables with many reads and fewer writes.
+
+Adopt HBase to split DB queries for tables with fewer reads and lot writes.
+
+Optimized the number of comments and likes storage by employing denormalization to reduce DB queries.
+
+Introduce Message Queue to deliver asynchronous tasks to minimize response time.
 
 
 ## Getting start
-deploy project to docker
+deploy project on docker
 
 ### Create a file to save your S3 access key
 
